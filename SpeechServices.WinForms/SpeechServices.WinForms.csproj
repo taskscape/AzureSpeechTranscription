@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWindowsForms>true</UseWindowsForms>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Reason: ApplicationConfiguration.Initialize reads this runtime DPI mode while the designer-specific setting below remains isolated to Visual Studio. -->
+    <ApplicationHighDpiMode>SystemAware</ApplicationHighDpiMode>
+    <!-- Reason: Visual Studio 2022 17.8+ can render WinForms designers in DPI-unaware mode, which helps designer tabs display controls reliably on scaled displays. -->
+    <ForceDesignerDPIUnaware>true</ForceDesignerDPIUnaware>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="TranscriptionConfiguration.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Reason: the GUI owns JSON preloading so the CLI remains a direct parameter-driven process. -->
+    <Compile Include="..\Shared\TranscriptionConfiguration.cs" Link="Shared\TranscriptionConfiguration.cs" />
+    <!-- Reason: the GUI launches the CLI as a separate process, so the project reference establishes build order without linking the CLI assembly into WinForms. -->
+    <ProjectReference Include="..\SpeechServices.Cli\SpeechServices.Cli.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Target Name="CopyCliOutput" AfterTargets="Build">
+    <!-- Reason: copying the full CLI output preserves runtimeconfig, deps, native Speech SDK assets, and package dependencies required by the background process. -->
+    <ItemGroup>
+      <CliOutputFiles Include="..\SpeechServices.Cli\bin\$(Configuration)\net8.0\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CliOutputFiles)" DestinationFiles="@(CliOutputFiles->'$(OutDir)cli\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

@@ -1,0 +1,8 @@
+{
+  "videoUrl": "https://www.youtube.com/watch?v=VIDEO_ID",
+  "inputType": "youtube",
+  "speechRegion": "eastus",
+  "speechKey": "<your-azure-speech-key>",
+  "language": "en-US",
+  "speakers": 1
+}
