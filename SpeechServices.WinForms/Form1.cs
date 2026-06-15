@@ -675,7 +675,7 @@ public partial class Form1 : Form
 
     private bool TryValidateInputs(out string cliPath)
     {
-        cliPath = Path.GetFullPath(_cliPathTextBox.Text.Trim());
+        cliPath = string.Empty;
 
         if (string.IsNullOrWhiteSpace(_inputTextBox.Text))
         {
@@ -690,6 +690,11 @@ public partial class Form1 : Form
         if (string.IsNullOrWhiteSpace(_languageTextBox.Text))
         {
             return ShowValidationError("Provide a speech language such as en-US.");
+        }
+
+        if (!TryResolveCliExecutablePath(_cliPathTextBox.Text, out cliPath))
+        {
+            return ShowValidationError("The CLI executable was not found. Build the solution or choose SpeechServices.Cli.exe.");
         }
 
         if (!File.Exists(cliPath))
@@ -710,6 +715,34 @@ public partial class Form1 : Form
         }
 
         return true;
+    }
+
+    private static bool TryResolveCliExecutablePath(string rawPath, out string cliPath)
+    {
+        cliPath = string.Empty;
+        if (string.IsNullOrWhiteSpace(rawPath))
+        {
+            return false;
+        }
+
+        var fullPath = Path.GetFullPath(rawPath.Trim());
+        if (File.Exists(fullPath) && Path.GetExtension(fullPath).Equals(".exe", StringComparison.OrdinalIgnoreCase))
+        {
+            cliPath = fullPath;
+            return true;
+        }
+
+        if (Path.GetFileName(fullPath).Equals("SpeechServices.Cli.dll", StringComparison.OrdinalIgnoreCase))
+        {
+            var executablePath = Path.ChangeExtension(fullPath, ".exe");
+            if (File.Exists(executablePath))
+            {
+                cliPath = executablePath;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private bool ShowValidationError(string message)
@@ -988,7 +1021,7 @@ public partial class Form1 : Form
                 "Release";
 #endif
 
-            var candidate = Path.Combine(directory.FullName, "SpeechServices.Cli", "bin", configuration, "net8.0", "SpeechServices.Cli.exe");
+            var candidate = Path.Combine(directory.FullName, "SpeechServices.Cli", "bin", configuration, "net10.0", "SpeechServices.Cli.exe");
             if (File.Exists(candidate))
             {
                 return candidate;
