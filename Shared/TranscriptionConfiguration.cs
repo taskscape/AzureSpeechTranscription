@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.IO;
 
 namespace SpeechServices.Shared;
 
@@ -39,7 +40,7 @@ public sealed class TranscriptionConfiguration
 
     public static string? FindDefaultPath(params string[] searchDirectories)
     {
-        // Reason: the WinForms app should discover the same preload file whether it is launched from source, bin, or a published folder.
+        // Reason: the WPF app should discover the same preload file whether it is launched from source, bin, or a published folder.
         foreach (var directory in searchDirectories.Where(directory => !string.IsNullOrWhiteSpace(directory)).Distinct(StringComparer.OrdinalIgnoreCase))
         {
             var candidate = Path.Combine(directory, DefaultFileName);

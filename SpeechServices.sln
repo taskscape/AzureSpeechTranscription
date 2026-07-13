@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechServices.Cli", "SpeechServices.Cli\SpeechServices.Cli.csproj", "{111E6A9D-4E50-409A-8D75-B84BDB92D833}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechServices.WinForms", "SpeechServices.WinForms\SpeechServices.WinForms.csproj", "{A3ACBE7A-C096-4060-8419-B091CB3E1685}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpeechServices.Wpf", "SpeechServices.Wpf\SpeechServices.Wpf.csproj", "{A3ACBE7A-C096-4060-8419-B091CB3E1685}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

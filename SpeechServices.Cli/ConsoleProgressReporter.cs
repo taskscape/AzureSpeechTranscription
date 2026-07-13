@@ -23,7 +23,7 @@ internal sealed class ConsoleProgressReporter(bool writeJson) : IProgressReporte
         {
             if (writeJson)
             {
-                // Reason: newline-delimited JSON gives the WinForms process runner incremental progress without waiting for process exit.
+                // Reason: newline-delimited JSON gives the WPF process runner incremental progress without waiting for process exit.
                 Console.Out.WriteLine(JsonSerializer.Serialize(message, JsonOptions));
                 Console.Out.Flush();
                 return;

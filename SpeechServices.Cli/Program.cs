@@ -25,7 +25,7 @@ internal static class Program
 
         try
         {
-            // Reason: the CLI is the durable automation boundary, so each stage emits progress that the WinForms app can stream without linking to Azure SDK assemblies.
+            // Reason: the CLI is the durable automation boundary, so each stage emits progress that the WPF app can stream without linking to Azure SDK assemblies.
             reporter.Report(ProgressMessage.Status("startup", "Starting transcription request.", 0));
 
             var audioPreparation = new AudioPreparationService();

@@ -1,0 +1,111 @@
+<Window x:Class="SpeechServices.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Azure Speech Transcription"
+        Width="1180" Height="840" MinWidth="1040" MinHeight="760"
+        WindowStartupLocation="CenterScreen"
+        Closing="Window_Closing">
+    <Window.CommandBindings>
+        <CommandBinding Command="ApplicationCommands.Open" CanExecute="ConfigCommand_CanExecute" Executed="LoadConfigCommand_Executed" />
+        <CommandBinding Command="ApplicationCommands.Save" CanExecute="ConfigCommand_CanExecute" Executed="SaveConfigCommand_Executed" />
+    </Window.CommandBindings>
+    <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Load config..." Command="ApplicationCommands.Open" />
+                <MenuItem Header="_Save config..." Command="ApplicationCommands.Save" />
+            </MenuItem>
+        </Menu>
+        <Grid Margin="12">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Grid.Row="0" Header="Input" Margin="0,0,0,8">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="90" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="120" />
+                    <ColumnDefinition Width="110" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="Source" VerticalContentAlignment="Center" />
+                <TextBox x:Name="InputTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,0" ToolTip="Local audio file path or YouTube URL" />
+                <Button x:Name="BrowseInputButton" Grid.Row="0" Grid.Column="2" Content="Browse..." Click="BrowseInputButton_Click" />
+                <ComboBox x:Name="InputTypeComboBox" Grid.Row="0" Grid.Column="3" SelectedIndex="0">
+                    <ComboBoxItem Content="Auto" />
+                    <ComboBoxItem Content="File" />
+                    <ComboBoxItem Content="YouTube" />
+                </ComboBox>
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,5,0,0" Foreground="Gray" TextWrapping="Wrap"
+                           Text="The CLI accepts WAV, MP3, M4A, and other Windows Media Foundation-decodable files. YouTube URLs are downloaded as audio first." />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Header="Azure Speech Settings" Margin="0,0,0,8">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="70" /><ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="62" /><ColumnDefinition Width="1.35*" />
+                    <ColumnDefinition Width="70" /><ColumnDefinition Width="1.35*" />
+                    <ColumnDefinition Width="70" /><ColumnDefinition Width="0.9*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Label Grid.Column="0" Content="Key" VerticalContentAlignment="Center" />
+                <PasswordBox x:Name="SpeechKeyPasswordBox" Grid.Column="1" Margin="0,0,8,0" ToolTip="Leave blank to use AZURE_SPEECH_KEY" />
+                <Label Grid.Column="2" Content="Region" VerticalContentAlignment="Center" />
+                <ComboBox x:Name="SpeechRegionComboBox" Grid.Column="3" Margin="0,0,8,0" DisplayMemberPath="Name" IsTextSearchEnabled="True" ToolTip="Select the region of your Azure Speech resource" />
+                <Label Grid.Column="4" Content="Language" VerticalContentAlignment="Center" />
+                <TextBox x:Name="LanguageTextBox" Grid.Column="5" Margin="0,0,8,0" ToolTip="For example, en-US" />
+                <Label Grid.Column="6" Content="Speakers" VerticalContentAlignment="Center" />
+                <ComboBox x:Name="SpeakerCountComboBox" Grid.Column="7" />
+                <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,5,0,0" Foreground="Gray" TextWrapping="Wrap"
+                           Text="Speaker count above 1 enables Azure conversation transcription so returned segments can include speaker labels." />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Row="2" Header="CLI" Margin="0,0,0,8">
+            <Grid Margin="10">
+                <Grid.ColumnDefinitions><ColumnDefinition Width="90" /><ColumnDefinition Width="*" /><ColumnDefinition Width="110" /></Grid.ColumnDefinitions>
+                <Grid.RowDefinitions><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+                <Label Grid.Row="0" Grid.Column="0" Content="CLI path" VerticalContentAlignment="Center" />
+                <TextBox x:Name="CliPathTextBox" Grid.Row="0" Grid.Column="1" Margin="0,0,8,0" />
+                <Button x:Name="BrowseCliButton" Grid.Row="0" Grid.Column="2" Content="Browse..." Click="BrowseCliButton_Click" />
+            </Grid>
+        </GroupBox>
+
+        <Grid Grid.Row="3" Margin="0,0,0,8">
+            <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /></Grid.ColumnDefinitions>
+            <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
+            <Button x:Name="StartButton" Grid.Row="0" Grid.Column="0" Content="Start" Click="StartButton_Click" />
+            <Button x:Name="CancelButton" Grid.Row="0" Grid.Column="1" Content="Cancel" Click="CancelButton_Click" />
+            <Button x:Name="SaveButton" Grid.Row="0" Grid.Column="2" Content="Save Text..." Click="SaveButton_Click" />
+            <Button x:Name="ClearButton" Grid.Row="0" Grid.Column="3" Content="Clear" Click="ClearButton_Click" />
+            <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="4" Height="22" Margin="0,0,8,0" Minimum="0" Maximum="100" />
+            <TextBlock x:Name="StatusTextBlock" Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock x:Name="PartialTextBlock" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,6,0,0" Foreground="Gray" TextTrimming="CharacterEllipsis" />
+        </Grid>
+
+        <Grid Grid.Row="4">
+            <Grid.RowDefinitions><RowDefinition Height="2*" /><RowDefinition Height="6" /><RowDefinition Height="*" /></Grid.RowDefinitions>
+            <TextBox x:Name="TranscriptTextBox" Grid.Row="0" IsReadOnly="True" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" FontFamily="Courier New" FontSize="8pt" />
+            <GridSplitter Grid.Row="1" Height="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
+            <ListBox x:Name="ProgressListBox" Grid.Row="2" Margin="0,6,0,0" FontFamily="Consolas" ScrollViewer.HorizontalScrollBarVisibility="Auto" ContextMenuOpening="ProgressListBox_ContextMenuOpening">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="CopyErrorOutputMenuItem" Header="Copy Error Output" Click="CopyErrorOutputMenuItem_Click" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+            </ListBox>
+        </Grid>
+        </Grid>
+    </DockPanel>
+</Window>

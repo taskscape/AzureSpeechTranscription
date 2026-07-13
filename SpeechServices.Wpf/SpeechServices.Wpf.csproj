@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows7.0</TargetFramework>
+    <CliTargetFramework>net10.0</CliTargetFramework>
+    <Nullable>enable</Nullable>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Shared\TranscriptionConfiguration.cs" Link="Shared\TranscriptionConfiguration.cs" />
+    <ProjectReference Include="..\SpeechServices.Cli\SpeechServices.Cli.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
+  <Target Name="CopyCliOutput" AfterTargets="Build">
+    <ItemGroup>
+      <CliOutputFiles Include="..\SpeechServices.Cli\bin\$(Configuration)\$(CliTargetFramework)\**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CliOutputFiles)" DestinationFiles="@(CliOutputFiles->'$(OutDir)cli\%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
+  </Target>
+
+</Project>

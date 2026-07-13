@@ -1,9 +1,9 @@
 # SpeechServices
 
-Two .NET 8 applications work together:
+Two .NET 10 applications work together:
 
 - `SpeechServices.Cli`: downloads or reads audio, normalizes it to WAV, and transcribes it with Azure AI Speech.
-- `SpeechServices.WinForms`: desktop GUI that launches the CLI in the background, streams progress, previews transcript text, and saves the text file.
+- `SpeechServices.Wpf`: WPF desktop GUI that launches the CLI in the background, streams progress, previews transcript text, and saves the text file.
 
 ## Requirements
 
@@ -18,10 +18,10 @@ Two .NET 8 applications work together:
 dotnet build .\SpeechServices.sln
 ```
 
-The WinForms build copies the CLI output into:
+The WPF build copies the CLI output into:
 
 ```text
-SpeechServices.WinForms\bin\Debug\net8.0-windows\cli\
+SpeechServices.Wpf\bin\Debug\net10.0-windows7.0\cli\
 ```
 
 ## Required Configuration
@@ -35,7 +35,7 @@ SpeechServices.WinForms\bin\Debug\net8.0-windows\cli\
 | Speech language | `--language` | none | Language | `en-US`, `pl-PL` |
 | Speaker count | `--speakers` | none | Speakers | `1`, `2` |
 
-The WinForms application can preload GUI fields from a JSON file. The CLI does not read this file; when the GUI starts transcription, it passes the current GUI values to the CLI as normal command-line arguments and environment variables. The default filename is `transcription.config.json`; a sample is provided in [transcription.config.sample.json](C:/Projects/SpeechServices/transcription.config.sample.json).
+The WPF application can preload GUI fields from a JSON file. The CLI does not read this file; when the GUI starts transcription, it passes the current GUI values to the CLI as normal command-line arguments and environment variables. The default filename is `transcription.config.json`; a sample is provided in [transcription.config.sample.json](C:/Projects/AzureSpeechTranscription/transcription.config.sample.json). The WPF app also saves the current Speech key, region, language, and speaker count when it closes. Its per-user settings file is stored in `%LocalAppData%\SpeechServices\settings.json`; the Speech key is protected with Windows DPAPI.
 
 ```json
 {
@@ -74,7 +74,7 @@ dotnet run --project .\SpeechServices.Cli -- --input .\sample.mp3 --language en-
 Transcribe a YouTube URL with JSON progress:
 
 ```powershell
-.\SpeechServices.Cli\bin\Debug\net8.0\SpeechServices.Cli.exe `
+.\SpeechServices.Cli\bin\Debug\net10.0\SpeechServices.Cli.exe `
   --input "https://www.youtube.com/watch?v=VIDEO_ID" `
   --input-type youtube `
   --language en-US `
@@ -93,7 +93,7 @@ Useful CLI options:
 
 ## GUI Usage
 
-1. Run `SpeechServices.WinForms`.
+1. Run `SpeechServices.Wpf`.
 2. Provide a local audio file or YouTube URL, or browse to a JSON configuration file.
 3. Enter Azure Speech key and region, set `AZURE_SPEECH_KEY` and `AZURE_SPEECH_REGION`, or load them from the configuration file.
 4. Set language and speaker count.
@@ -105,9 +105,9 @@ If processing fails, right-click the progress log and choose `Copy Error Output`
 
 The GUI passes credentials to the CLI through process environment variables so the Speech key is not placed on the command line.
 
-## Visual Studio Designer
+## WPF layout
 
-The WinForms project sets `ApplicationHighDpiMode` for runtime and `ForceDesignerDPIUnaware` for Visual Studio 2022 17.8+ designer tabs. Visual Studio reads the designer setting when the project is loaded, so unload/reload the WinForms project or restart Visual Studio after changing it.
+The WPF interface is declared in `MainWindow.xaml`, with the process integration in its code-behind. This keeps the layout editable in the WPF designer while retaining the CLI-based transcription workflow.
 
 ## Progress Protocol
 
