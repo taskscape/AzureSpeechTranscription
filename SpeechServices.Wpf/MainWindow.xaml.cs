@@ -72,6 +72,14 @@ public partial class MainWindow : Window
         new("West US 3", "westus3"),
     ];
 
+    private static readonly LanguageOption[] KnownSpeechLanguages =
+    [
+        new("Polish", "pl-PL"),
+        new("German", "de-DE"),
+        new("English (United States)", "en-US"),
+        new("English (United Kingdom)", "en-GB"),
+    ];
+
     private static string SettingsFilePath => Path.Combine(
         Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
         "SpeechServices",
@@ -82,6 +90,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         ConfigureSpeakerCount();
         ConfigureSpeechRegions();
+        ConfigureSpeechLanguages();
         LoadDefaultValues();
         SetBusy(isBusy: false);
     }
@@ -98,6 +107,12 @@ public partial class MainWindow : Window
 
     private void ConfigureSpeechRegions() => SpeechRegionComboBox.ItemsSource = KnownSpeechRegions;
 
+    private void ConfigureSpeechLanguages()
+    {
+        LanguageComboBox.ItemsSource = KnownSpeechLanguages;
+        SelectSpeechLanguage("en-US");
+    }
+
     private void LoadDefaultValues()
     {
         var environmentRegion = Environment.GetEnvironmentVariable("AZURE_SPEECH_REGION")
@@ -106,7 +121,6 @@ public partial class MainWindow : Window
         {
             SelectSpeechRegion(environmentRegion);
         }
-        LanguageTextBox.Text = "en-US";
         CliPathTextBox.Text = FindDefaultCliPath();
         StatusTextBlock.Text = "Ready";
         PartialTextBlock.Text = string.Empty;
@@ -198,7 +212,7 @@ public partial class MainWindow : Window
                 InputType = GetSelectedInputType(),
                 SpeechKey = string.IsNullOrWhiteSpace(speechKey) ? null : speechKey,
                 SpeechRegion = GetSelectedSpeechRegion(),
-                Language = LanguageTextBox.Text.Trim(),
+                Language = GetSelectedSpeechLanguage(),
                 Speakers = GetSpeakerCount(),
             };
 
@@ -295,7 +309,10 @@ public partial class MainWindow : Window
         AppendProgress("Cancel requested.");
     }
 
-    private void SaveButton_Click(object sender, RoutedEventArgs e)
+    private void SaveTextCommand_CanExecute(object sender, CanExecuteRoutedEventArgs e) =>
+        e.CanExecute = !_isBusy && _transcriptBuilder.Length > 0;
+
+    private void SaveTextCommand_Executed(object sender, ExecutedRoutedEventArgs e)
     {
         if (_transcriptBuilder.Length == 0)
         {
@@ -340,7 +357,7 @@ public partial class MainWindow : Window
         startInfo.ArgumentList.Add("--input-type");
         startInfo.ArgumentList.Add(GetSelectedInputType());
         startInfo.ArgumentList.Add("--language");
-        startInfo.ArgumentList.Add(LanguageTextBox.Text.Trim());
+        startInfo.ArgumentList.Add(GetSelectedSpeechLanguage());
         startInfo.ArgumentList.Add("--speakers");
         startInfo.ArgumentList.Add(GetSpeakerCount().ToString());
         startInfo.ArgumentList.Add("--json");
@@ -457,7 +474,7 @@ public partial class MainWindow : Window
         _transcriptBuilder.AppendLine(line);
         TranscriptTextBox.AppendText(line + Environment.NewLine);
         TranscriptTextBox.ScrollToEnd();
-        SaveButton.IsEnabled = true;
+        CommandManager.InvalidateRequerySuggested();
     }
 
     private void ReplaceTranscriptIfFinalTextProvided(string? text)
@@ -470,7 +487,8 @@ public partial class MainWindow : Window
         _transcriptBuilder.Clear();
         _transcriptBuilder.Append(text);
         TranscriptTextBox.Text = text;
-        SaveButton.IsEnabled = _transcriptBuilder.Length > 0;
+        TranscriptTextBox.ScrollToEnd();
+        CommandManager.InvalidateRequerySuggested();
     }
 
     private static string FormatTranscriptLine(string text, string? speakerId, TimeSpan offset, bool includeSpeaker)
@@ -493,7 +511,7 @@ public partial class MainWindow : Window
             return ShowValidationError("The selected local audio file does not exist.");
         }
 
-        if (string.IsNullOrWhiteSpace(LanguageTextBox.Text))
+        if (string.IsNullOrWhiteSpace(GetSelectedSpeechLanguage()))
         {
             return ShowValidationError("Provide a speech language such as en-US.");
         }
@@ -577,9 +595,9 @@ public partial class MainWindow : Window
         ProgressListBox.Items.Clear();
         PartialTextBlock.Text = string.Empty;
         ProgressBar.Value = 0;
-        SaveButton.IsEnabled = false;
         _hasProcessingError = false;
         CopyErrorOutputMenuItem.IsEnabled = false;
+        CommandManager.InvalidateRequerySuggested();
     }
 
     private void SetBusy(bool isBusy)
@@ -588,13 +606,12 @@ public partial class MainWindow : Window
         StartButton.IsEnabled = !isBusy;
         CancelButton.IsEnabled = isBusy;
         ClearButton.IsEnabled = !isBusy;
-        SaveButton.IsEnabled = !isBusy && _transcriptBuilder.Length > 0;
         InputTextBox.IsEnabled = !isBusy;
         BrowseInputButton.IsEnabled = !isBusy;
         InputTypeComboBox.IsEnabled = !isBusy;
         SpeechKeyPasswordBox.IsEnabled = !isBusy;
         SpeechRegionComboBox.IsEnabled = !isBusy;
-        LanguageTextBox.IsEnabled = !isBusy;
+        LanguageComboBox.IsEnabled = !isBusy;
         SpeakerCountComboBox.IsEnabled = !isBusy;
         CliPathTextBox.IsEnabled = !isBusy;
         BrowseCliButton.IsEnabled = !isBusy;
@@ -708,10 +725,7 @@ public partial class MainWindow : Window
 
             SelectSpeechRegion(settings.SpeechRegion);
 
-            if (!string.IsNullOrWhiteSpace(settings.Language))
-            {
-                LanguageTextBox.Text = settings.Language;
-            }
+            SelectSpeechLanguage(settings.Language);
 
             if (settings.SpeakerCount is { } speakers)
             {
@@ -733,7 +747,7 @@ public partial class MainWindow : Window
             {
                 ProtectedSpeechKey = string.IsNullOrWhiteSpace(speechKey) ? null : ProtectSpeechKey(speechKey),
                 SpeechRegion = GetSelectedSpeechRegion(),
-                Language = LanguageTextBox.Text.Trim(),
+                Language = GetSelectedSpeechLanguage(),
                 SpeakerCount = GetSpeakerCount(),
             };
 
@@ -837,10 +851,7 @@ public partial class MainWindow : Window
 
         SelectSpeechRegion(configuration.ResolveSpeechRegion());
 
-        if (!string.IsNullOrWhiteSpace(configuration.Language))
-        {
-            LanguageTextBox.Text = configuration.Language;
-        }
+        SelectSpeechLanguage(configuration.Language);
 
         if (configuration.Speakers is { } speakers)
         {
@@ -882,6 +893,21 @@ public partial class MainWindow : Window
 
     private string GetSelectedSpeechRegion() =>
         (SpeechRegionComboBox.SelectedItem as RegionOption)?.Identifier ?? string.Empty;
+
+    private void SelectSpeechLanguage(string? language)
+    {
+        if (string.IsNullOrWhiteSpace(language))
+        {
+            return;
+        }
+
+        LanguageComboBox.SelectedItem = KnownSpeechLanguages.FirstOrDefault(option =>
+            option.Identifier.Equals(language.Trim(), StringComparison.OrdinalIgnoreCase)
+            || option.Name.Equals(language.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    private string GetSelectedSpeechLanguage() =>
+        (LanguageComboBox.SelectedItem as LanguageOption)?.Identifier ?? string.Empty;
 
     private static string? GetString(JsonElement element, string propertyName) =>
         element.TryGetProperty(propertyName, out var property) && property.ValueKind == JsonValueKind.String
@@ -965,4 +991,6 @@ public partial class MainWindow : Window
     }
 
     private sealed record RegionOption(string Name, string Identifier);
+
+    private sealed record LanguageOption(string Name, string Identifier);
 }

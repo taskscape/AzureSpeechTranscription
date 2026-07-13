@@ -8,12 +8,15 @@
     <Window.CommandBindings>
         <CommandBinding Command="ApplicationCommands.Open" CanExecute="ConfigCommand_CanExecute" Executed="LoadConfigCommand_Executed" />
         <CommandBinding Command="ApplicationCommands.Save" CanExecute="ConfigCommand_CanExecute" Executed="SaveConfigCommand_Executed" />
+        <CommandBinding Command="ApplicationCommands.SaveAs" CanExecute="SaveTextCommand_CanExecute" Executed="SaveTextCommand_Executed" />
     </Window.CommandBindings>
     <DockPanel>
         <Menu DockPanel.Dock="Top">
             <MenuItem Header="_File">
                 <MenuItem Header="_Load config..." Command="ApplicationCommands.Open" />
                 <MenuItem Header="_Save config..." Command="ApplicationCommands.Save" />
+                <Separator />
+                <MenuItem Header="Save text _as..." Command="ApplicationCommands.SaveAs" />
             </MenuItem>
         </Menu>
         <Grid Margin="12">
@@ -64,7 +67,7 @@
                 <Label Grid.Column="2" Content="Region" VerticalContentAlignment="Center" />
                 <ComboBox x:Name="SpeechRegionComboBox" Grid.Column="3" Margin="0,0,8,0" DisplayMemberPath="Name" IsTextSearchEnabled="True" ToolTip="Select the region of your Azure Speech resource" />
                 <Label Grid.Column="4" Content="Language" VerticalContentAlignment="Center" />
-                <TextBox x:Name="LanguageTextBox" Grid.Column="5" Margin="0,0,8,0" ToolTip="For example, en-US" />
+                <ComboBox x:Name="LanguageComboBox" Grid.Column="5" Margin="0,0,8,0" DisplayMemberPath="Name" IsTextSearchEnabled="True" ToolTip="Select the transcription language" />
                 <Label Grid.Column="6" Content="Speakers" VerticalContentAlignment="Center" />
                 <ComboBox x:Name="SpeakerCountComboBox" Grid.Column="7" />
                 <TextBlock Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="7" Margin="0,5,0,0" Foreground="Gray" TextWrapping="Wrap"
@@ -83,15 +86,14 @@
         </GroupBox>
 
         <Grid Grid.Row="3" Margin="0,0,0,8">
-            <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /></Grid.ColumnDefinitions>
+            <Grid.ColumnDefinitions><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="110" /><ColumnDefinition Width="*" /><ColumnDefinition Width="170" /></Grid.ColumnDefinitions>
             <Grid.RowDefinitions><RowDefinition Height="Auto" /><RowDefinition Height="Auto" /></Grid.RowDefinitions>
             <Button x:Name="StartButton" Grid.Row="0" Grid.Column="0" Content="Start" Click="StartButton_Click" />
             <Button x:Name="CancelButton" Grid.Row="0" Grid.Column="1" Content="Cancel" Click="CancelButton_Click" />
-            <Button x:Name="SaveButton" Grid.Row="0" Grid.Column="2" Content="Save Text..." Click="SaveButton_Click" />
-            <Button x:Name="ClearButton" Grid.Row="0" Grid.Column="3" Content="Clear" Click="ClearButton_Click" />
-            <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="4" Height="22" Margin="0,0,8,0" Minimum="0" Maximum="100" />
-            <TextBlock x:Name="StatusTextBlock" Grid.Row="0" Grid.Column="5" VerticalAlignment="Center" TextWrapping="Wrap" />
-            <TextBlock x:Name="PartialTextBlock" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="6" Margin="0,6,0,0" Foreground="Gray" TextTrimming="CharacterEllipsis" />
+            <Button x:Name="ClearButton" Grid.Row="0" Grid.Column="2" Content="Clear" Click="ClearButton_Click" />
+            <ProgressBar x:Name="ProgressBar" Grid.Row="0" Grid.Column="3" Height="22" Margin="0,0,8,0" Minimum="0" Maximum="100" />
+            <TextBlock x:Name="StatusTextBlock" Grid.Row="0" Grid.Column="4" VerticalAlignment="Center" TextWrapping="Wrap" />
+            <TextBlock x:Name="PartialTextBlock" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="5" Margin="0,6,0,0" Foreground="Gray" TextTrimming="CharacterEllipsis" />
         </Grid>
 
         <Grid Grid.Row="4">
