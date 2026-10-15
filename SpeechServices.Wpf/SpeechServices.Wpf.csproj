@@ -3,7 +3,8 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows7.0</TargetFramework>
-    <CliTargetFramework>net10.0</CliTargetFramework>
+    <!-- Reason: Match the CLI's Windows target framework so its output is copied into the GUI bundle. -->
+    <CliTargetFramework>net10.0-windows7.0</CliTargetFramework>
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -7,7 +7,7 @@ Two .NET 10 applications work together:
 
 ## Requirements
 
-- Windows with .NET 8 SDK/runtime.
+- Windows with .NET 10 SDK/runtime.
 - Azure AI Speech resource key and region.
 - Internet access for Azure Speech and YouTube URL input.
 - Local audio must be decodable by Windows Media Foundation. WAV, MP3, and M4A are the safest choices.
@@ -74,7 +74,7 @@ dotnet run --project .\SpeechServices.Cli -- --input .\sample.mp3 --language en-
 Transcribe a YouTube URL with JSON progress:
 
 ```powershell
-.\SpeechServices.Cli\bin\Debug\net10.0\SpeechServices.Cli.exe `
+.\SpeechServices.Cli\bin\Debug\net10.0-windows7.0\SpeechServices.Cli.exe `
   --input "https://www.youtube.com/watch?v=VIDEO_ID" `
   --input-type youtube `
   --language en-US `

@@ -122,7 +122,8 @@ internal sealed class AudioPreparationService
             var lastReported = DateTimeOffset.MinValue;
             int bytesRead;
 
-            while ((bytesRead = resampler.Read(buffer, 0, buffer.Length)) > 0)
+            // Reason: NAudio 3 reads into a Span<byte>, replacing the former array-offset-count overload.
+            while ((bytesRead = resampler.Read(buffer.AsSpan())) > 0)
             {
                 cancellationToken.ThrowIfCancellationRequested();
                 writer.Write(buffer, 0, bytesRead);
